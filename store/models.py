@@ -9,6 +9,7 @@ from django.urls import reverse
 
 class Product(models.Model):
     product_name        =  models.CharField(max_length=200, unique=True)
+    brand               =  models.CharField(max_length=200,blank=True)
     slug                =  models.SlugField(max_length=200, unique=True)
     description         =  models.TextField(max_length=500, blank=True)
     price               =  models.IntegerField()
