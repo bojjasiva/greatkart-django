@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 # Create your models here.
 
 class MyAccountManager(BaseUserManager):
-    def create_user(self, first_name, last_name, username, email, password=None):
+    def create_user(self, first_name, last_name, username, email, mobile, password=None ):
         if not email:
             raise ValueError('User must have an email address')
 
@@ -17,6 +17,7 @@ class MyAccountManager(BaseUserManager):
             username = username,
             first_name = first_name,
             last_name = last_name,
+            mobile = mobile,
 
         )
 
@@ -31,6 +32,7 @@ class MyAccountManager(BaseUserManager):
             password = password,
             first_name = first_name,
             last_name = last_name,
+    
         )
 
         user.is_admin = True
