@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm
 from .models import Account
 from django.http import HttpResponse
+from carts.models import Cart, CartItem
+from carts.views import _cart_id
+import requests
 
 # Email Verification
 from django.contrib.sites.shortcuts import get_current_site
@@ -63,8 +66,68 @@ def login(request):
             messages.error(request, 'Email Verification pending.! Please verify email by clicking the link sent to your registered email.. ')
             return redirect('login')
         if user is not None:
+            try:
+                cart = Cart.objects.get(cart_id=_cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+
+                # Getting products and varaiations from cart before login
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    product_variation = []
+                    ci_id_cart = []
+                    for item in cart_item:
+                        variation = item.variation.all()                       
+                        product_variation.append(list(variation))
+                        ci_id_cart.append(item.id)
+                        
+                    
+                # Getting products and variations from user account in database
+                    cart_item = CartItem.objects.filter(user=user)
+                    exst_var_list = []
+                    ci_id = []
+                    for item in cart_item:
+                        variation = item.variation.all()
+                        exst_var_list.append(list(variation))
+                        ci_id.append(item.id)
+
+                # Saving product if variation is already exist in user account from databse
+                    for pr in product_variation:
+                        index = product_variation.index(pr)
+                        item_id_pr = ci_id_cart[index]
+                        if pr in exst_var_list:
+                            index = exst_var_list.index(pr)
+                            item_id = ci_id[index]
+                            item = CartItem.objects.get(id=item_id)
+                            item.quantity += 1
+                            item.user = user
+                            item.save()
+                # Saving product if variation not existing in account items from database
+                        else:
+                            index = product_variation.index(pr)
+                            item_id_pr = ci_id_cart[index]
+                            cart_item = CartItem.objects.get(id=item_id_pr)
+                            cart_item.user = user
+                            cart_item.save()
+                            # cart_item = CartItem.objects.filter(cart=cart)
+                            # for item in cart_item:
+                            #     item.user = user
+                            #     item.save()
+                    
+            except:
+                pass
             auth.login(request, user)
-            return redirect('home')
+
+            # Code to redirect url to /cart/checkout after login with cart items
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                params=dict(x.split('=') for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+
+            except:
+                  return redirect('home')
         else:
             messages.error(request, 'Invalid Credentials.! Try Again.. ')
             return redirect('login')
