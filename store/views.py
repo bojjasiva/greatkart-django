@@ -66,7 +66,7 @@ def search(request):
             page           = request.GET.get('page')
             paged_products = paginator.get_page(page)
     context = {
-            'products' : products,
+            'products' : paged_products,
             'productCount'  : productCount,
 
               }

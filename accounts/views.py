@@ -119,12 +119,16 @@ def login(request):
 
             # Code to redirect url to /cart/checkout after login with cart items
             url = request.META.get('HTTP_REFERER')
+            # url value is 'next=/cart/checkout'
             try:
                 query = requests.utils.urlparse(url).query
+
+                # Creating a dictionary from string
                 params=dict(x.split('=') for x in query.split('&'))
                 if 'next' in params:
                     nextPage = params['next']
                     return redirect(nextPage)
+                # params valus is "{'next':'/cart/checkout'}"
 
             except:
                   return redirect('home')

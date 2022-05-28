@@ -9,7 +9,7 @@ class RegistrationForm(forms.ModelForm):
         'placeholder' : 'Confirm Password',
     }))
     class Meta:
-        model = Account
+        model  = Account
         fields = ['first_name', 'last_name', 'email', 'mobile','password']
 
     def __init__(self, *args, **kwargs):
