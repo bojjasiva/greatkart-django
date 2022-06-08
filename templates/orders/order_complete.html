@@ -67,7 +67,7 @@
 
                                             {% for product in ordered_products %}
                                             <tr>
-                                                <td>{{ product.product }}
+                                                <td> <a href="{{ product.product.get_url }}">{{ product.product }}</a>
 
                                                 <p class="text-muted small">
 
